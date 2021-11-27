@@ -1,0 +1,380 @@
+=================== Configurações no config/app.php ====================
+
+'timezone' => 'America/Sao_Paulo'
+
+'locale' => 'pt_BR'
+
+ 'faker_locale' => 'pt_BR'  (Dados Factory gerados em Pt_BR)
+
+
+================ Criar um Model com Resource Controller  ================
+
+ php artisan make:model Usuario --resource -cm
+
+ ** Serão criados a model Usuario , o UsuarioController com os métodos e a migration
+
+
+======================== Utilizando uma Migration ========================
+
+Schema::create('regras', function (Blueprint $table) {
+            $table->id();
+            $table->string('regra',150);
+            $table->timestamps();
+        });
+
+Schema::create('usuarios', function (Blueprint $table) {
+            $table->id();
+            $table->string('nome',50);
+            $table->string('email',100);
+            $table->string('senha');
+            $table->string('sexo');
+            $table->bigInteger('regra_id')->unsigned();
+            $table->foreign('regra_id')->references('id')->on('regras')->onDelete('cascade');
+            $table->timestamps();
+        });
+
+php artisan migrate
+
+=================== Criar uma Factory de Usuários ========================
+
+php artisan make:factory UsuarioFactory
+
+no método definition criar um array com a biblioteca faker
+
+return [
+            'nome'  => $this->faker->name(),
+            'email' => $this->faker->email(),
+            'senha' => Hash::make('123456'),
+        ];
+
+para criar os registros:
+
+php artisan tinker
+
+App\Models\Usuario::factory()->create();
+
+
+================  Ativar as Rotas do UsuarioController ====================
+
+Route::resource('usuarios', UsuarioController::class);
+
+** para verificar as rotas que são criadas:
+
+php artisan route:list
+
+
+=============== Criando um Middleware de Controle de Sessão  ===============
+
+php artisan make:middleware CheckSession
+
+** Dentro do método handle(){
+    if(!session('lvrecursos')){
+        return redirect()->route('login');
+    }
+}
+
+** publicar esse middleware no Kernel.php
+
+ protected $routeMiddleware = [
+     .....
+     .....
+     'check' => \App\Http\Middleware\CheckSession::class,
+ ];
+
+** em rotas criar um group-middleware
+
+Route::middleware('check')->group(function () {
+
+    rotas aqui......
+}
+
+
+================ Utilizando Paginação com Bootstrap =====================
+
+** em Providers / AppServiceProvider.php
+
+use Illuminate\Pagination\Paginator;
+
+ public function boot()
+    {
+        Paginator::useBootstrap();
+    }
+
+** no controller -> 'usuarios' => Usuario::latest()->paginate(5),
+
+** na view ->  {{$usuarios->links()}}
+
+
+==================  Utilizando A Biblioteca SWEET-ALERT  ===================
+
+acessar https://realrashid.github.io/sweet-alert/
+
+composer require realrashid/sweet-alert
+
+** em config/app.php inserir o provider e o aliases
+
+    provider: RealRashid\SweetAlert\SweetAlertServiceProvider::class,
+
+    aliases: 'Alert' => RealRashid\SweetAlert\Facades\Alert::class,
+
+** incluir a classe no layout master
+
+    @include('sweetalert::alert')
+
+** Publiar o pacote no asset
+
+    php artisan sweetalert:publish
+
+** para que funcione deve ser importado no controller
+
+    use Alert;
+
+** para utilizar um toast pode ser feito de 2 formas
+
+    Alert::toast('Usuário Cadastrado!', 'success');    ou
+    alert()->toast('Usuário Cadastrado!', 'success');
+
+** para criar o método de exclusão deve criar 2 funções , uma para confirmação
+    e outra para exclusão
+
+    public function confirm($id)
+    {
+        alert()->question('Excluir Usuário','Deseja excluir este usuário?')
+        ->showConfirmButton('<a href="/usuario/delete/'.$id.'" style="color:#FFF;text-decoration:none">Excluir</a>', '#BB2D3B')
+        ->toHtml()
+        ->showCancelButton('Cancelar', '#3085d6')->reverseButtons();
+        return redirect()->back();
+    }
+
+    public function delete($id)
+    {
+        Usuario::find($id)->delete();
+        alert()->toast('Usuário Excluído!', 'success');
+        return redirect()->back();
+
+    }
+
+
+==================  Utilizando A Biblioteca DOMPDF  ===================
+
+** composer require barryvdh/laravel-dompdf
+
+** Adicionar o ServiceProvider no array de providers do arquivo config/app.php
+
+    Barryvdh\DomPDF\ServiceProvider::class,
+
+** Adicionar o atalho de facades no array de aliases do arquivo config/app.php
+
+    'PDF' => Barryvdh\DomPDF\Facade::class,
+
+** Publicar no config
+
+  php artisan vendor:publish --provider="Barryvdh\DomPDF\ServiceProvider"
+
+** criar o PdfController
+
+** criar o metodo para mostrar o pdf de lista de usuarios no PdfController
+
+    public function lista_usuarios()
+    {
+        $usuarios = Usuario::all();
+        $pdf = PDF::loadView('pdf.lista_usuarios',compact('usuarios'))->setPaper('a4', 'portrait');
+        return $pdf->stream('lista_de_usuarios.pdf');
+    }
+
+** importante !!
+
+- Os PDFs no DomPDF precisam de estilização na própria página
+- lembrar se ativar a biblioteca GD (no xampp fica no php.ini)
+- ara a paginação funcionar , no config/dompdf.php alterar : "enable_php" => true,
+
+
+*** Exemplo de Página PDF Estilizada ***
+
+<style>
+
+        @page{
+            margin: 0cm 0cm;
+        }
+
+        body{
+            margin-left: 1cm;
+            margin-right: 1cm;
+            margin-top:4.5cm;
+            margin-bottom:3.5cm;
+            font-size: 12px;
+            font-family:Arial, Helvetica, sans-serif;color:#505050;
+        }
+
+        header{
+            position:fixed;
+            top: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 4cm;
+
+            background-color: #EEE;
+            border-bottom: 1px solid grey;
+            text-align: center;
+            color: #505050;
+        }
+
+        footer{
+            position:fixed;
+            bottom: 0cm;
+            left: 0cm;
+            right: 0cm;
+            height: 2cm;
+
+            background-color: #EEE;
+            border-top: 1px solid grey;
+            text-align: center;
+            color: #505050;
+        }
+
+        .logo_topo{
+            margin-top: 15px;
+        }
+
+        tr:nth-child(even){
+            background-color: #DDD;
+        }
+
+        .table{
+            border-collapse: collapse;
+        }
+
+        thead th{
+            background-color: #366092;
+            color: #EEE;
+            font-weight: 400;
+        }
+
+        .table td{
+            border:1px solid grey;
+            padding-left: 4px;
+            padding-right: 4px;
+        }
+        .table th{
+            border:1px solid grey;
+            font-size: 15px;
+            padding-left: 4px;
+        }
+
+    </style>
+
+    <body>
+
+    <header>
+
+        <img class="logo_topo" src="{{public_path('/img/gov_rj.png')}}" alt="" srcset="">
+
+        <p>
+            Governo do Estado do Rio de Janeiro<br>
+            Secretaria de Estado de Administração Penitenciária<br>
+            Superintendência de Inteligência do Sistema Penitenciário
+        </p>
+
+    </header>
+
+    <footer>
+
+        <p>
+            SISPEN - Praça Cristiano Ottoni, s/n Edifício D.Pedro II - 4º andar - Centro - Rio de Janeiro<br>
+            Email: sispen@seap.gov.rj.br
+        </p>
+
+    </footer>
+
+    <main>
+
+        <table class="table" width="100%">
+            <thead>
+              <tr>
+                <th width="10%" scope="col">#</th>
+                <th width="40%" scope="col">Nome</th>
+                <th width="50%" scope="col">Email</th>
+               </tr>
+            </thead>
+            <tbody>
+              @foreach ($usuarios as $u)
+                <tr>
+                    <td style="text-align:center">{{$u->id}}</td>
+                    <td>{{$u->nome}}</td>
+                    <td>{{$u->email}}</td>
+                </tr>
+              @endforeach
+            </tbody>
+          </table>
+
+    </main>
+
+    <script type="text/php">
+        if(isset($pdf)){
+            $pdf->page_text(525,770,"Página {PAGE_NUM} de {PAGE_COUNT}",'arial',9,array(0,0,0));
+        }
+    </script>
+
+    </body>
+
+
+
+=====================  Utilizando A Biblioteca  LARAPEX-CHARTS  =======================
+
+** composer require arielmejiadev/larapex-charts
+
+**  Publicar a Biblioteca
+
+    php artisan vendor:publish --tag=larapex-charts-config
+
+** Para criar um novo gráfico
+
+    php artisan make:chart SexoUsuariosChart
+
+    - A lista de opções abaixo aparecerá
+
+    - [ ] Pie Chart
+    - [x] Donut Chart
+    - [ ] Radial Bar Chart
+    - [ ] Polar Area Chart
+    - [ ] Line Chart
+    - [ ] Area Chart
+    - [ ] Bar Chart
+    - [ ] Horizontal Bar Chart
+    - [ ] HeatMap Chart
+    - [ ] Radar Chart
+
+** será criada uma classe em app/Charts
+
+    public function build(): \ArielMejiaDev\LarapexCharts\donutChart
+    {
+        return $this->chart->donutChart()
+            ->setTitle('Usuários do Sistema')
+            ->setSubtitle('Ano Base - 2021')
+            ->addData([
+                \App\Models\Usuario::where('sexo','=','feminino')->count(),
+                \App\Models\Usuario::where('sexo','=','masculino')->count(),
+            ])
+            ->setLabels(['Mulheres', 'Homens'])
+            ->setColors(['#D32F2F', '#03A9F4']);
+
+    }
+
+** na view
+
+    <div class="bg-white rounded shadow" style="width: 400px">
+        {!! $chart->container() !!}
+    </div>
+
+    <script src="{{ $chart->cdn() }}"></script>
+
+    {{ $chart->script() }}
+
+
+
+
+
+
+
+
+
