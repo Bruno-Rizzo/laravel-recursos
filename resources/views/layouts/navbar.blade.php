@@ -18,7 +18,25 @@
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li>
                   <a class="dropdown-item" href="{{route('usuarios.index')}}">
-                    <i class="fas fa-user-friends me-1"></i>Lista de Usuários
+                    Lista de Usuários
+                  </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                  <a class="dropdown-item" href="{{route('pdfs')}}">
+                    <i class="fas fa-file-pdf me-1"></i>Relatórios
+                 </a>
+             </li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-id-card-alt me-1"></i>Funcionários
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li>
+                  <a class="dropdown-item" href="{{route('funcionarios.index')}}">
+                    Lista de Funcionários
                   </a>
               </li>
               <li><hr class="dropdown-divider"></li>

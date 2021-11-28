@@ -372,8 +372,38 @@ composer require realrashid/sweet-alert
 
 
 
+=========================  Salvando Imagens  ================================
+
+** no formulário da view utilizar enctype="multipart/form-data"
 
 
+*** criar a pasta images na pasta Public
+
+*** armazenar o caminho da pasta em uma variável
+    $path = public_path('images');
+
+*** armazenar o nome da imagem em uma variável
+    $imgName = date('dmYHis').'.'.$request->foto->extension();
+
+*** passar o caminho e o nome para uma única variável
+     $foto = $request->foto->move($path,$imgName);
+
+*** no banco de dados gravar apenas o nome da imagem
+    'foto' => $imgName,
+
+        $path    = public_path('images');
+        $imgName = date('dmYHis').'.'.$request->foto->extension();
+        $foto    = $request->foto->move($path , $imgName);
+
+        Funcionario::create([
+            'nome'   => $request->nome,
+            'setor'  => $request->setor,
+            'funcao' => $request->funcao,
+            'foto'   => $imgName
+        ]);
+
+*** para chamar a foto na view
+    <img src="{{asset('images/'.$f->foto)}}" class="rounded-circle" width="40px">
 
 
 

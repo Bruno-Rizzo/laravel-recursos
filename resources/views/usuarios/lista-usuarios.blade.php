@@ -3,12 +3,12 @@
 @section('content')
     <div class="card mt-3">
         <div class="card-header">
-            <i class="fas fa-user-friends me-1"></i>Lista de Usuários
+            Lista de Usuários
         </div>
         <div class="card-body">
             <div class="mb-3">
                 <a href="{{route('usuarios.create')}}" class="btn btn-sm btn-success">
-                    <i class="fas fa-user-plus me-1"></i>Novo Usuário
+                    <i class="fas fa-circle-plus me-1"></i>Novo Usuário
                 </a>
             </div>
             <table class="table table-bordered table-striped table-hover table-sm">
