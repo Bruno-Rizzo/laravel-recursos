@@ -24,7 +24,7 @@
                 <tbody>
                     @foreach ($funcionarios as $f)
                     <tr>
-                        <td class="text-center"><img src="{{asset('images/'.$f->foto)}}" class="rounded-circle" width="40px" ></td>
+                        <td class="text-center"><img src="{{asset('storage/img/'.$f->foto)}}" class="rounded-circle" width="40px" ></td>
                         <td class="align-middle">{{$f->nome}}</td>
                         <td class="align-middle">{{$f->setor}}</td>
                         <td class="align-middle">{{$f->funcao}}</td>

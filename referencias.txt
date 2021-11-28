@@ -407,4 +407,31 @@ composer require realrashid/sweet-alert
 
 
 
++++++++++++++++++++++++++ Outra Forma de Fazer +++++++++++++++++++++++++++++++++
 
+** criar o Storage link
+    php artisan storage:link
+
+** em storage/app/public criar uma pasta img
+
+** armazenar a foto vinda do formulario em uma variável
+    $foto = $request->foto;
+
+** armazenar o nome da imagem em uma variável
+    $imgName = date('dmYHis').'.'.$foto->extension();
+
+** salvar a foto na pasta
+    $foto->storeAs('public/img/', $imgName);
+
+** no banco de dados gravar apenas o nome da imagem
+    'foto' => $imgName,
+
+Funcionario::create([
+            'nome'   => $request->nome,
+            'setor'  => $request->setor,
+            'funcao' => $request->funcao,
+            'foto'   => $imgName
+        ]);
+
+*** para chamar a foto na view
+    <img src="{{asset('storage/img/'.$f->foto)}}" class="rounded-circle" width="40px">

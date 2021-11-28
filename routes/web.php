@@ -13,7 +13,7 @@ Route::post('/login', [LoginController::class , 'login']);
 Route::get('/logout', [LoginController::class , 'logout'])->name('logout');
 
 
-//Route::middleware('check')->group(function () {
+Route::middleware('check')->group(function () {
 
     // ======================= ROTA HOME ================================
     Route::get('/', [HomeController::class , 'index'])->name('home');
@@ -29,9 +29,8 @@ Route::get('/logout', [LoginController::class , 'logout'])->name('logout');
     Route::resource('funcionarios', FuncionarioController::class);
 
     // ===================================== ROTAS DE PDFS =================================================
-    Route::get('/login', [LoginController::class , 'index'])->name('login');
-    Route::get('/pdfs', [PDFController::class , 'index'])->name('pdfs');
+   Route::get('/pdfs', [PDFController::class , 'index'])->name('pdfs');
     Route::get('/pdf/usuarios', [PDFController::class , 'lista_todos_usuarios'])->name('lista_todos_usuarios');
 
-//});
+});
 

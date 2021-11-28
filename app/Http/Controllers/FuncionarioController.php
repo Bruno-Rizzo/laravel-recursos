@@ -28,9 +28,16 @@ class FuncionarioController extends Controller
             'foto'   => 'required'
         ]);
 
+        /*
         $path    = public_path('images');
         $imgName = date('dmYHis').'.'.$request->foto->extension();
         $foto    = $request->foto->move($path , $imgName);
+        */
+
+        $foto    = $request->foto;
+        $imgName = date('dmYHis').'.'.$foto->extension();
+        $foto->storeAs('public/img/', $imgName);
+
 
         Funcionario::create([
             'nome'   => $request->nome,
